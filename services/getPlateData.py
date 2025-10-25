@@ -183,7 +183,7 @@ def get_plate_data(
 # Ejemplo de uso
 if __name__ == "__main__":
     # Rellenar con tu username de prueba/producción de RegCheck
-    USERNAME = "BryanMoreno11"
+    USERNAME = "BryanMoreno12"
     plate = "OBC1226"
     result = get_plate_data(plate, username=USERNAME, raw=False)
     print(json.dumps(result, indent=2, ensure_ascii=False))

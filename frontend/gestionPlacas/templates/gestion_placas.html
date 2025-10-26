@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detección de Placas Vehiculares</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('gestion_placas.static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-camera-fill me-2"></i>
+                Detección de Placas Vehiculares
+            </span>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container my-5">
+        <!-- Upload Section -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 upload-card">
+                    <div class="card-body p-4">
+                        <h2 class="card-title text-center mb-4">
+                            <i class="bi bi-cloud-upload text-primary"></i>
+                            Cargar Imagen de Vehículo
+                        </h2>
+                        
+                        <!-- Upload Area -->
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-content">
+                                <i class="bi bi-image upload-icon"></i>
+                                <p class="upload-text">Arrastra una imagen aquí o usa los botones</p>
+                                <p class="upload-hint">Formatos soportados: JPG, PNG (Máx. 16MB)</p>
+                            </div>
+                            <input type="file" id="imageInput" accept="image/*" class="d-none">
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-3">
+                            <button class="btn btn-primary btn-lg me-2" id="selectFileBtn">
+                                <i class="bi bi-folder2-open me-2"></i>
+                                Seleccionar Archivo
+                            </button>
+                            <button class="btn btn-outline-primary btn-lg" id="cameraBtn">
+                                <i class="bi bi-camera me-2"></i>
+                                Usar Cámara
+                            </button>
+                        </div>
+
+                        <!-- Preview Section -->
+                        <div id="previewSection" class="mt-4 d-none">
+                            <h5 class="text-center mb-3">Vista Previa</h5>
+                            <div class="preview-container">
+                                <img id="imagePreview" src="" alt="Preview" class="img-fluid rounded">
+                            </div>
+                            <div class="text-center mt-3">
+                                <button class="btn btn-primary btn-lg" id="processBtn">
+                                    <i class="bi bi-gear-fill me-2"></i>
+                                    Procesar Imagen
+                                </button>
+                                <button class="btn btn-outline-secondary btn-lg ms-2" id="cancelBtn">
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSection" class="row justify-content-center d-none">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body text-center p-5">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Procesando...</span>
+                        </div>
+                        <h4 class="text-primary">Procesando imagen...</h4>
+                        <p class="text-muted">Detectando placa y extrayendo información</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="d-none">
+            <!-- Plate Detection Result -->
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-8">
+                    <div class="card shadow-lg border-0 result-card">
+                        <div class="card-body p-4">
+                            <h3 class="card-title text-center mb-4">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Placa Detectada
+                            </h3>
+                            
+                            <div class="row align-items-center">
+                                <div class="col-md-6 text-center mb-3 mb-md-0">
+                                    <div class="plate-image-container">
+                                        <img id="plateImage" src="" alt="Placa detectada" class="img-fluid rounded shadow">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="plate-number-display">
+                                        <label class="form-label text-muted fw-bold">Número de Placa:</label>
+                                        <div class="plate-number" id="plateNumber">---</div>
+                                    </div>
+                                    <div class="confidence-display mt-3">
+                                        <label class="form-label text-muted">Confianza:</label>
+                                        <div class="progress" style="height: 25px;">
+                                            <div id="confidenceBar" class="progress-bar bg-success" role="progressbar" 
+                                                 style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                                <span id="confidenceText">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Data Result -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-lg border-0 result-card">
+                        <div class="card-body p-4">
+                            <h3 class="card-title text-center mb-4">
+                                <i class="bi bi-car-front-fill text-primary me-2"></i>
+                                Información del Vehículo
+                            </h3>
+                            
+                            <div id="vehicleDataContent">
+                                <!-- Vehicle data will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Search Button -->
+            <div class="row justify-content-center mt-4">
+                <div class="col-lg-8 text-center">
+                    <button class="btn btn-primary btn-lg" id="newSearchBtn">
+                        <i class="bi bi-arrow-clockwise me-2"></i>
+                        Nueva Búsqueda
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Section -->
+        <div id="errorSection" class="row justify-content-center d-none">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 border-danger">
+                    <div class="card-body p-4 text-center">
+                        <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+                        <h4 class="text-danger mt-3">Error al Procesar</h4>
+                        <p id="errorMessage" class="text-muted mt-3"></p>
+                        <button class="btn btn-primary mt-3" id="retryBtn">
+                            <i class="bi bi-arrow-clockwise me-2"></i>
+                            Intentar de Nuevo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div class="modal fade" id="cameraModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-camera-fill me-2"></i>
+                        Capturar Foto
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <video id="cameraStream" autoplay playsinline class="w-100 rounded"></video>
+                    <canvas id="cameraCanvas" class="d-none"></canvas>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="captureBtn">
+                        <i class="bi bi-camera me-2"></i>
+                        Capturar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('gestion_placas.static', filename='js/app.js') }}"></script>
+</body>
+</html>

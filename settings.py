@@ -18,3 +18,4 @@ IOU_THRESHOLD = 0.45
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 #Parámetros OCR
 OCR_CONFIDENCE_THRESHOLD = 0.5
+API_USERNAME="prueba1234"
